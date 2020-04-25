@@ -15,11 +15,16 @@ export const appRoutes: Routes = [
       {
         path: 'members',
         component: MemberListComponent,
-        canActivate: [AuthGuard],
       },
-      { path: 'messages', component: MessagesComponent },
-      { path: 'lists', component: ListsComponent },
-    ]
+      {
+        path: 'messages',
+        component: MessagesComponent,
+      },
+      {
+        path: 'lists',
+        component: ListsComponent,
+      },
+    ],
   },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];
