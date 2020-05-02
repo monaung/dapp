@@ -128,6 +128,12 @@ namespace DatingApp.API.Controllers
 
             return BadRequest("Could not add the photo");
         }
+        [HttpGet("{id}", Name = "GetUser1")]
+        public  NoContentResult GetUser(int id)
+        {   
+            
+                return NoContent();
+        }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePhoto(int userId, int id)
