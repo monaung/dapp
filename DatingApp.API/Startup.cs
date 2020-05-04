@@ -15,13 +15,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
+
+
 namespace DatingApp.API
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        IWebHostEnvironment _env;
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            _env =env;
         }
 
         public IConfiguration Configuration { get; }
@@ -29,7 +33,20 @@ namespace DatingApp.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(x=> x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            //services.AddDbContext<DataContext>(x=> x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))sq);
+            //services.AddDbContext<SqliteDataContext>(x=> x.UseSqlite(Configuration.GetConnectionString("SqliteConnection")));
+            services.AddDbContext<DataContext>(x=> x.UseSqlServer(Configuration.GetConnectionString("SQLConnection")));
+            // if(_env.IsProduction())
+            // {
+            //     services.AddDbContext<DataContext>(x=> x.UseSqlServer(Configuration.GetConnectionString("SQLConnection")));
+            // }
+            
+            // if(_env.IsDevelopment())
+            // {
+            //     services.AddDbContext<SqliteDataContext>(x=> x.UseSqlite(Configuration.GetConnectionString("SqliteConnection")));
+            // }
+
+            
             services.AddControllers();
             services.AddCors();
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
@@ -51,6 +68,8 @@ namespace DatingApp.API
             services.AddControllers().AddNewtonsoftJson(opt => {
                 opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             });
+            
+            services.AddScoped<LogUserActivity>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
