@@ -11,6 +11,7 @@ import { ComponentRef } from '@angular/core';
 import { MemberEditComponent } from './members/member-edit/member-edit.component';
 import { MemberEditResolver } from './_resolver/member-edit.resolver';
 import { PreventUnsavedChanges } from './_guards/prevent-unsaved-changes.guards';
+import { ListsResolver } from './_resolver/lists.resolver';
 
 export const appRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -42,6 +43,7 @@ export const appRoutes: Routes = [
       {
         path: 'lists',
         component: ListsComponent,
+        resolve: {users: ListsResolver}
       },
     ],
   },
