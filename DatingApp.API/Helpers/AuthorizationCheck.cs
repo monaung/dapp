@@ -4,22 +4,16 @@ using System.Threading.Tasks;
 using DatingApp.API.Data;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
-
 namespace DatingApp.API.Helpers
 {
-    public class LogUserActivity :Attribute, IAsyncActionFilter
+    public class AuthorizationCheck : Attribute, IAsyncActionFilter
     {
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
+            var userId = int.Parse(context.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var id = context.HttpContext.Request.RouteValues.Keys;
             var resultContext = await next();
-            var userId = int.Parse(resultContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var repo = resultContext.HttpContext.RequestServices.GetService<IDatingRepository>();
-
-            var user = await repo.GetUser(userId);
-            user.LastActive = DateTime.Now;
             
-            await repo.SaveAll();
-
         }
     }
 }
