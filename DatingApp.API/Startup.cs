@@ -25,37 +25,43 @@ namespace DatingApp.API
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
-            _env =env;
+            _env = env;
         }
 
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureDevelopmentServices(IServiceCollection services)
+        {
+            Console.WriteLine("Development Config ------");
+            ConfigureServices(services);
+        }
+
+        public void ConfigureProductionServices(IServiceCollection services)
+        {
+            Console.WriteLine("Production Config ------");
+            ConfigureServices(services);
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             //services.AddDbContext<DataContext>(x=> x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))sq);
             //services.AddDbContext<SqliteDataContext>(x=> x.UseSqlite(Configuration.GetConnectionString("SqliteConnection")));
-            services.AddDbContext<DataContext>(x=> x.UseSqlServer(Configuration.GetConnectionString("SQLConnection")));
-            // if(_env.IsProduction())
-            // {
-            //     services.AddDbContext<DataContext>(x=> x.UseSqlServer(Configuration.GetConnectionString("SQLConnection")));
-            // }
-            
-            // if(_env.IsDevelopment())
-            // {
-            //     services.AddDbContext<SqliteDataContext>(x=> x.UseSqlite(Configuration.GetConnectionString("SqliteConnection")));
-            // }
+            //services.AddDbContext<DataContext>(x => x.UseSqlServer(Configuration.GetConnectionString("SQLConnection")));
+            services.AddDbContext<DataContext>(x => x.UseLazyLoadingProxies()
+                   .UseSqlServer(Configuration.GetConnectionString("SQLConnection")));
 
-            
+
             services.AddControllers();
             services.AddCors();
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
             services.AddAutoMapper(typeof(DatingRepository).Assembly);
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options => {
+            .AddJwtBearer(options =>
+            {
                 options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                {   
+                {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes
                     (Configuration.GetSection("AppSettings:Token").Value)),
@@ -65,17 +71,17 @@ namespace DatingApp.API
             });
 
             services.AddScoped<IDatingRepository, DatingRepository>();
-            services.AddControllers().AddNewtonsoftJson(opt => {
+            services.AddControllers().AddNewtonsoftJson(opt =>
+            {
                 opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             });
-            
+
             //services.AddScoped<LogUserActivity>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             if (env.IsDevelopment())
             {
@@ -84,14 +90,16 @@ namespace DatingApp.API
             else
             {
 
-                app.UseExceptionHandler(builder=> {
+                app.UseExceptionHandler(builder =>
+                {
 
-                    builder.Run(async context=> {
+                    builder.Run(async context =>
+                    {
 
                         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
                         var error = context.Features.Get<IExceptionHandlerFeature>();
-                        if(error !=null)
+                        if (error != null)
                         {
                             context.Response.AddApplicationError(error.Error.Message);
                             await context.Response.WriteAsync(error.Error.Message);
@@ -103,16 +111,20 @@ namespace DatingApp.API
             //app.UseHttpsRedirection();
 
 
-        
+
             app.UseRouting();
-            
+
             app.UseAuthentication();
             app.UseAuthorization();
-            
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
+            app.UseDefaultFiles(); //Kestrel will look for index.html or default.html in wwwroot folder
+            app.UseStaticFiles(); //by adding this two line, webserver enable to serve angular app togher with api
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapFallbackToController("Index", "Fallback");
             });
         }
     }
