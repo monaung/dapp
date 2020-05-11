@@ -1,0 +1,33 @@
+{
+    "deploy.reloaded": {
+        "packages": [
+            {
+                "name": "Version 1.0.0",
+                "description": "Package version 1.0.0",
+
+                "files": [
+                    "DatingApp.API/bin/Release/netcoreapp3.1/publish/**"
+                ]
+            }
+        ],
+
+        "targets": [
+            {
+                "type": "sftp",
+                "name": "Linux",
+                "description": "SFTP folder",
+
+                "host": "192.168.1.108", "port": 22,
+                "user": "monaung", "password": "asdf1234",
+
+                "dir": "/var/thesocialapp",
+                "mappings": {
+                    "DatingApp.API/bin/Release/netcoreapp3.1/publish/**": "/"
+                }
+            }
+            
+        ]
+    },
+    "appService.defaultWebAppToDeploy": "/subscriptions/3336d14a-94fa-4638-9f92-35ac70827d41/resourceGroups/TheSocialAppResourceGroup/providers/Microsoft.Web/sites/thesocialapp",
+    "appService.deploySubpath": "DatingApp.API/bin/Release/netcoreapp3.1/publish"
+}

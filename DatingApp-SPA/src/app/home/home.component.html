@@ -6,6 +6,26 @@
       <button class="btn btn-primary btn-lg mr-2" (click)="registerToggle()">Register</button>
       <button class="btn btn-info btn-lg">Learn more</button>
     </div>
+    <div class="text-center">
+      <table class="table mt-5">
+        <thead>
+          <tr>
+            <th scope="col">Username</th>
+            <th scope="col">Password</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>lola</th>
+            <td>password</td>
+          </tr>
+          <tr>
+            <th>bat</th>
+            <td>password</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div *ngIf="registerMode" class="container">

@@ -31,26 +31,17 @@ namespace DatingApp.API
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureDevelopmentServices(IServiceCollection services)
-        {
-            Console.WriteLine("Development Config ------");
-            ConfigureServices(services);
-        }
-
-        public void ConfigureProductionServices(IServiceCollection services)
-        {
-            Console.WriteLine("Production Config ------");
-            ConfigureServices(services);
-        }
 
         public void ConfigureServices(IServiceCollection services)
         {
             //services.AddDbContext<DataContext>(x=> x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))sq);
             //services.AddDbContext<SqliteDataContext>(x=> x.UseSqlite(Configuration.GetConnectionString("SqliteConnection")));
             //services.AddDbContext<DataContext>(x => x.UseSqlServer(Configuration.GetConnectionString("SQLConnection")));
-            services.AddDbContext<DataContext>(x => x.UseLazyLoadingProxies()
-                   .UseSqlServer(Configuration.GetConnectionString("SQLConnection")));
-
+            services.AddDbContext<DataContext>(x =>
+            {
+                x.UseLazyLoadingProxies();
+                x.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+            });
 
             services.AddControllers();
             services.AddCors();
@@ -106,12 +97,10 @@ namespace DatingApp.API
                         }
                     });
                 });
+                app.UseHsts();
             }
 
-            //app.UseHttpsRedirection();
-
-
-
+            app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseAuthentication();
